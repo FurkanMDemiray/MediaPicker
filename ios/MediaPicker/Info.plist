@@ -61,5 +61,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+  <string>Uygulamayi kullanmak icin kameraya erisim izni gerekmektedir.</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>Uygulamayi kullanmak icin fotoğraf kitaplığına erisim izni gerekmektedir.</string>
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>Uygulamayi kullanmak icin fotoğraf kitaplığına erisim izni gerekmektedir.</string>
 </dict>
 </plist>
