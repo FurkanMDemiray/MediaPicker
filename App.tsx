@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View, ScrollView } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import MediaPickerButton, {
-  MediaPickerOptions,
-} from './src/components/MediaPickerButton';
 import type { ImagePickerResponse } from 'react-native-image-picker';
+import NewMediaPicker from './src/components/NewMediaPicker';
 
 function App() {
   const [selectedMedia, setSelectedMedia] = useState<string[]>([]);
@@ -30,23 +28,17 @@ function App() {
     }
   };
 
-  const handleVideoSelect = () => {
-    const options: MediaPickerOptions = {
-      mediaType: 'video',
-      selectionLimit: 3,
-    };
-    return options;
-  };
+  const handleVideoSelect = (): MediaPickerOptions => ({
+    mediaType: 'video',
+    selectionLimit: 3,
+  });
 
-  const handlePhotoSelect = () => {
-    const options: MediaPickerOptions = {
-      mediaType: 'photo',
-      quality: 0.9,
-      maxWidth: 1920,
-      maxHeight: 1080,
-    };
-    return options;
-  };
+  const handlePhotoSelect = (): MediaPickerOptions => ({
+    mediaType: 'photo',
+    quality: 0.9,
+    maxWidth: 1920,
+    maxHeight: 1080,
+  });
 
   return (
     <SafeAreaProvider>
@@ -62,22 +54,12 @@ function App() {
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Photo Selection</Text>
-            <MediaPickerButton
-              onMediaSelected={handleMediaSelected}
-              options={handlePhotoSelect()}
-              buttonText="Select Photo"
-              showPreview={true}
-            />
+            <NewMediaPicker />
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Video Selection</Text>
-            <MediaPickerButton
-              onMediaSelected={handleMediaSelected}
-              options={handleVideoSelect()}
-              buttonText="Select Video"
-              showPreview={false}
-            />
+            <NewMediaPicker />
           </View>
 
           {selectedMedia.length > 0 && (
@@ -86,7 +68,7 @@ function App() {
                 Selected ({selectedMedia.length})
               </Text>
               <Text style={styles.infoText}>
-                Media files are stored in state. Check console for URI details.
+                Media files are stored in state.
               </Text>
             </View>
           )}
@@ -128,9 +110,6 @@ const styles = StyleSheet.create({
     color: '#1C1C1E',
     marginBottom: 16,
     alignSelf: 'flex-start',
-  },
-  customButton: {
-    backgroundColor: '#34C759',
   },
   infoText: {
     fontSize: 14,

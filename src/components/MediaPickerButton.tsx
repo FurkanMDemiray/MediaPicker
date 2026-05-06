@@ -1,13 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   launchCamera,
   launchImageLibrary,
   ImagePickerResponse,
   MediaType,
 } from 'react-native-image-picker';
-import { usePermission } from '../hooks/usePermission';
+
 import { RESULTS } from 'react-native-permissions';
+import MediaPickerModal from './MediaPickerModal';
 
 export interface MediaPickerOptions {
   mediaType?: MediaType;
@@ -35,6 +36,7 @@ const MediaPickerButton: React.FC<MediaPickerButtonProps> = ({
   showPreview = true,
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const cameraPermission = usePermission('camera');
   const photoLibraryPermission = usePermission('photoLibrary');
@@ -59,7 +61,6 @@ const MediaPickerButton: React.FC<MediaPickerButtonProps> = ({
       }
 
       if (response.errorCode) {
-        Alert.alert('Error', response.errorMessage || 'Something went wrong');
         return;
       }
 
@@ -82,7 +83,7 @@ const MediaPickerButton: React.FC<MediaPickerButtonProps> = ({
         });
         handleResponse(result);
       } catch {
-        Alert.alert('Error', 'Failed to open camera');
+        // Silent fail
       }
     }
   }, [cameraPermission, defaultOptions, options, handleResponse]);
@@ -97,18 +98,18 @@ const MediaPickerButton: React.FC<MediaPickerButtonProps> = ({
         });
         handleResponse(result);
       } catch {
-        Alert.alert('Error', 'Failed to open photo library');
+        // Silent fail
       }
     }
   }, [photoLibraryPermission, defaultOptions, options, handleResponse]);
 
   const handlePress = useCallback(() => {
-    Alert.alert('Select Media', 'Choose an option', [
-      { text: 'Camera', onPress: handleCameraPress },
-      { text: 'Photo Library', onPress: handleLibraryPress },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
-  }, [handleCameraPress, handleLibraryPress]);
+    setModalVisible(true);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setModalVisible(false);
+  }, []);
 
   return (
     <View style={[styles.container, style]}>
@@ -126,6 +127,13 @@ const MediaPickerButton: React.FC<MediaPickerButtonProps> = ({
           </Pressable>
         </View>
       )}
+
+      <MediaPickerModal
+        visible={modalVisible}
+        onClose={handleModalClose}
+        onCameraPress={handleCameraPress}
+        onLibraryPress={handleLibraryPress}
+      />
     </View>
   );
 };
