@@ -151,7 +151,7 @@ assets?: Array<{
 
 ## Adoption Checklist
 
-- [ ] Install dependencies: `react-native-permissions`, `react-native-image-picker`
+- [ ] Install dependencies: [`react-native-permissions`](https://github.com/zoontek/react-native-permissions) - [`react-native-image-picker`](https://github.com/react-native-image-picker/react-native-image-picker)
 - [ ] Configure permissions in Podfile (iOS) and AndroidManifest.xml
 - [ ] Add usage descriptions to Info.plist
 - [ ] Import and use `<MediaPicker>` component
