@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import NewMediaPicker from './src/components/NewMediaPicker';
+import NewMediaPicker from './src/components/MediaPicker';
 
 function App() {
   return (

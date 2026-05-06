@@ -1,97 +1,158 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# permissions.ts — R&D README
 
-# Getting Started
+> Utility functions for handling camera and photo library permissions on iOS/Android.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+**Type:** Utility Module  
+**Status:** Production-ready  
+**Last updated:** 2026-05-06
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## What is this?
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+A cross-platform permission utility that handles Camera and Photo Library permissions for iOS and Android. Provides check, request, and batch request functions with consistent return types.
 
-```sh
-# Using npm
-npm start
+## Features
 
-# OR using Yarn
-yarn start
+### Core Features
+
+- **Camera permission**: `checkCameraPermission()`, `requestCameraPermission()`
+- **Media permission**: `checkMediaPermission()`, `requestMediaPermission()` (handles iOS Photo Library and Android READ_MEDIA_IMAGES)
+- **Batch requests**: `requestAllPermissions()` requests both permissions in parallel
+- **Platform normalization**: Uses `Platform.select()` to map iOS/Android permission constants
+
+## Getting Started
+
+```typescript
+import {
+  checkCameraPermission,
+  requestCameraPermission,
+  requestMediaPermission,
+  requestAllPermissions,
+} from './components/utils/permissions';
+
+// Check current status (returns string: 'GRANTED' | 'DENIED' | 'BLOCKED' | etc)
+const status = await checkCameraPermission();
+
+// Request permission (returns boolean)
+const granted = await requestCameraPermission();
+
+// Request both camera and media
+const { camera, media } = await requestAllPermissions();
 ```
 
-## Step 2: Build and run your app
+## Permission Constants
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+| Platform | Permission | Description |
+|----------|------------|-------------|
+| iOS | `CAMERA` | NSCameraUsageDescription |
+| iOS | `PHOTO_LIBRARY` | NSPhotoLibraryUsageDescription |
+| Android | `CAMERA` | android.permission.CAMERA |
+| Android | `READ_MEDIA_IMAGES` | android.permission.READ_MEDIA_IMAGES |
 
-### Android
+---
 
-```sh
-# Using npm
-npm run android
+# MediaPicker.tsx — R&D README
 
-# OR using Yarn
-yarn android
+> Ready-to-use media selection component with camera and photo library support.
+
+**Type:** UI Component  
+**Status:** Production-ready  
+**Last updated:** 2026-05-06
+
+---
+
+## What is this?
+
+A pre-built React Native component that opens a native camera or photo library picker. Handles permission requests automatically and returns selected media assets via callback.
+
+## Features
+
+### Core Features
+
+- **Dual source**: Opens ActionSheet with Camera and Photo Library options
+- **Auto-permissions**: Requests camera/photo library permissions before opening
+- **Permission denied handling**: Shows Alert with "Open Settings" option when blocked
+- **Configurable options**: Quality, resolution, camera type, selection limit
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `options` | `MediaPickerOptions` | see below | Image picker config |
+| `onMediaSelected` | `(assets) => void` | - | Callback with selected media |
+| `buttonText` | `string` | `'Select Media'` | Button label |
+| `style` | `object` | - | Container styles |
+
+### MediaPickerOptions
+
+```typescript
+interface MediaPickerOptions {
+  mediaType?: 'photo' | 'video' | 'all';
+  quality?: number;           // 0-1, default 0.8
+  maxWidth?: number;         // default 1920
+  maxHeight?: number;        // default 1080
+  cameraType?: 'back' | 'front';
+  includeBase64?: boolean;   // default false
+  selectionLimit?: number;   // default 1
+}
 ```
 
-### iOS
+## Getting Started
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+```typescript
+import MediaPicker from './components/MediaPicker';
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+function App() {
+  const handleMedia = (assets) => {
+    console.log(assets?.[0]?.uri);
+  };
 
-```sh
-bundle install
+  return (
+    <MediaPicker
+      onMediaSelected={handleMedia}
+      buttonText="Add Photo"
+    />
+  );
+}
 ```
 
-Then, and every time you update your native dependencies, run:
+### With options
 
-```sh
-bundle exec pod install
+```typescript
+<MediaPicker
+  options={{
+    mediaType: 'photo',
+    quality: 0.5,
+    maxWidth: 1024,
+    maxHeight: 1024,
+    cameraType: 'front',
+    selectionLimit: 3,
+  }}
+  onMediaSelected={handleMedia}
+/>
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## Return Value
 
-```sh
-# Using npm
-npm run ios
+`onMediaSelected` receives an array of assets:
 
-# OR using Yarn
-yarn ios
+```typescript
+assets?: Array<{
+  uri: string;
+  type?: string;
+  fileName?: string;
+  fileSize?: number;
+  width?: number;
+  height?: number;
+  base64?: string;
+}>
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## Adoption Checklist
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- [ ] Install dependencies: `react-native-permissions`, `react-native-image-picker`
+- [ ] Configure permissions in Podfile (iOS) and AndroidManifest.xml
+- [ ] Add usage descriptions to Info.plist
+- [ ] Import and use `<MediaPicker>` component
+- [ ] Handle selected assets in `onMediaSelected` callback
