@@ -1,8 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, Alert, StyleSheet, Pressable, Text } from 'react-native';
+import { openSettings } from 'react-native-permissions';
 import {
-  requestAllPermissions,
   requestCameraPermission,
+  requestMediaPermission,
 } from './utils/permissions';
 import {
   launchCamera,
@@ -63,55 +64,57 @@ const NewMediaPicker: React.FC<NewMediaPickerProps> = ({
     [onMediaSelected],
   );
 
-  const openCamera = useCallback(async () => {
-    const hasPermission = await requestCameraPermission();
-    if (!hasPermission) {
-      Alert.alert(
-        'Permission Required',
-        'Camera access is required to take photos.',
-      );
-      return;
-    }
+  const handlePermissionDenied = (type: 'camera' | 'library') => {
+    Alert.alert(
+      'Permission Denied',
+      `${
+        type === 'camera' ? 'Camera' : 'Photo Library'
+      } access is required. Please enable it in Settings.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Open Settings', onPress: () => openSettings() },
+      ],
+    );
+  };
 
-    launchCamera(defaultOptions, result => {
-      handleResponse(result);
-    });
+  const openCamera = useCallback(async () => {
+    try {
+      const hasPermission = await requestCameraPermission();
+      if (!hasPermission) {
+        handlePermissionDenied('camera');
+        return;
+      }
+
+      launchCamera(defaultOptions, result => {
+        handleResponse(result);
+      });
+    } catch {
+      Alert.alert('Error', 'Failed to open camera.');
+    }
   }, [defaultOptions, handleResponse]);
 
   const openLibrary = useCallback(async () => {
-    const { media } = await requestAllPermissions();
-    if (!media) {
-      Alert.alert(
-        'Permission Required',
-        'Photo library access is required to select photos.',
-      );
-      return;
-    }
+    try {
+      const hasPermission = await requestMediaPermission();
+      if (!hasPermission) {
+        handlePermissionDenied('library');
+        return;
+      }
 
-    launchImageLibrary(defaultOptions, result => {
-      handleResponse(result);
-    });
+      launchImageLibrary(defaultOptions, result => {
+        handleResponse(result);
+      });
+    } catch {
+      Alert.alert('Error', 'Failed to open photo library.');
+    }
   }, [defaultOptions, handleResponse]);
 
   const handlePress = useCallback(async () => {
-    const { camera, media } = await requestAllPermissions();
-
-    if (camera && media) {
-      Alert.alert('Select Media', 'Choose an option', [
-        { text: 'Camera', onPress: openCamera },
-        { text: 'Photo Library', onPress: openLibrary },
-        { text: 'Cancel', style: 'cancel' },
-      ]);
-    } else if (camera) {
-      openCamera();
-    } else if (media) {
-      openLibrary();
-    } else {
-      Alert.alert(
-        'Permission Required',
-        'Camera or photo library access is required.',
-      );
-    }
+    Alert.alert('Select Media', 'Choose an option', [
+      { text: 'Camera', onPress: openCamera },
+      { text: 'Photo Library', onPress: openLibrary },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   }, [openCamera, openLibrary]);
 
   return (
